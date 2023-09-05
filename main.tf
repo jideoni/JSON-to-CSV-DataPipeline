@@ -7,8 +7,20 @@ data "aws_iam_policy_document" "assume_role" {
       identifiers = ["lambda.amazonaws.com"]
     }
 
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_cloudwatch_log_group" "CSV_to_JSON-function-log-group" {
+  name              = "/aws/lambda/${var.lambda_function_name}"
+  retention_in_days = 30
+}
+
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
+
     actions = [
-      "sts:AssumeRole",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
@@ -18,17 +30,11 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-
 resource "aws_iam_policy" "lambda_logging" {
   name        = "lambda_logging"
   path        = "/"
   description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.assume_role.json
-}
-
-resource "aws_cloudwatch_log_group" "CSV_to_JSON-function-log-group" {
-  name              = "/aws/lambda/${var.lambda_function_name}"
-  retention_in_days = 30
+  policy      = data.aws_iam_policy_document.lambda_logging.json
 }
 
 #create an iam role for lambda
