@@ -29,7 +29,7 @@ data "archive_file" "lambda-function" {
 
 #create S3 bucket for json objects
 resource "aws_s3_bucket" "json-bucket" {
-  bucket = "bucket-for-json-objects"
+  bucket = "bucket-for-json-objects-uploads"
 }
 
 #create S3 bucket for csv objects
