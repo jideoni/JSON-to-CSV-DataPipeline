@@ -123,17 +123,18 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   depends_on = [aws_lambda_permission.allow_bucket]
 }
 
-#create sns topic
+#create sns topic for csv conversion complete
 resource "aws_sns_topic" "conversion_complete_topic" {
   name   = "JSON_to_CSV_conversion_complete"
   policy = data.aws_iam_policy_document.json_bucket_topic.json
 }
 
+#create sns trigger for csv bucket
 resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
-  bucket = aws_s3_bucket.csv_bucket.id
+  bucket = aws_s3_bucket.csv-bucket.id
 
   topic {
-    topic_arn     = aws_sns_topic.topic.arn
+    topic_arn     = aws_sns_topic.conversion_complete_topic.arn
     events        = ["s3:ObjectCreated:*"]
     filter_suffix = ".csv"
   }
