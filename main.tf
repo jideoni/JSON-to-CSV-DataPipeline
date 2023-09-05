@@ -144,5 +144,5 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
 resource "aws_sns_topic_subscription" "email_target" {
   topic_arn = "arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete" 
   protocol  = "email"
-  endpoint  = ["onibabajide34@gmail.com"]
+  endpoint  = "onibabajide34@gmail.com"
 }
