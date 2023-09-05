@@ -11,23 +11,33 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "lambda_logging" {
-  statement {
-    effect = "Allow"
+data "aws_iam_policy_document" "lambda_permissions" {
+  statement [
+    {
+      effect = "Allow"
 
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:CreateBucket",
-      "s3:*",
-      "s3-object-lambda:*",
-    ]
+      actions = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:CreateBucket",
+      ]
 
-    resources = ["arn:aws:logs:*:*:*"]
-  }
+      resources = ["arn:aws:logs:us-east-1:380255901104:*"]
+    },
+    {
+      effect = "Allow"
+
+      actions = [
+        "s3:*",
+        "s3-object-lambda:*",
+      ]
+
+      resources = ["arn:aws:s3:us-east-1:380255901104:*"]
+    }
+  ]
 }
 
 data "aws_iam_policy_document" "json_bucket_topic" {
@@ -56,7 +66,7 @@ resource "aws_iam_policy" "lambda_logging" {
   name        = "lambda_logging"
   path        = "/"
   description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.lambda_logging.json
+  policy      = data.aws_iam_policy_document.lambda_permissions.json
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
