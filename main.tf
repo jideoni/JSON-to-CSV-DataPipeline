@@ -14,11 +14,7 @@
 #  owners = ["979382823631"] # Bitnami
 #}
 
-resource "aws_s3_bucket" "example" {
+resource "aws_s3_bucket" "bucket containing json objects" {
   bucket = "bucket-for-json-objects"
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
+  acl = "private"
 }
