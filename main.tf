@@ -165,7 +165,7 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   topic {
     topic_arn     = aws_sns_topic.conversion_complete_topic.arn
     events        = ["s3:ObjectCreated:*"]
-    filter_suffix = ".csv"
+    #filter_suffix = ".csv"
   }
 }
 
