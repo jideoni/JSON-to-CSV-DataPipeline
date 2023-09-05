@@ -77,3 +77,26 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
     #aws_cloudwatch_log_group.CSV_to_JSON-function-log-group,
   #]
 }
+
+#create lambda permission resource
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromJSON-S3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.csv_to_json_lambda.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.json-bucket.arn
+}
+
+#create S3 bucket notification resource
+resource "aws_s3_bucket_notification" "json_upload_notification" {
+  bucket = aws_s3_bucket.bucket.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+    #filter_prefix       = "AWSLogs/"
+    filter_suffix       = ".json"
+  }
+
+  depends_on = [aws_lambda_permission.allow_bucket]
+}
