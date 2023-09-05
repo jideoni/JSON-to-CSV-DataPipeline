@@ -89,7 +89,7 @@ resource "aws_lambda_permission" "allow_bucket" {
 
 #create S3 bucket notification resource
 resource "aws_s3_bucket_notification" "json_upload_notification" {
-  bucket = aws_s3_bucket.bucket.id
+  bucket = aws_s3_bucket.json-bucket.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
