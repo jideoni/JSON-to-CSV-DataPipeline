@@ -25,6 +25,28 @@ data "aws_iam_policy_document" "lambda_logging" {
   }
 }
 
+data "aws_iam_policy_document" "json_bucket_topic" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+
+    actions   = ["SNS:Publish"]
+    resources = ["arn:aws:sns:*:*:s3-event-notification-topic"]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_s3_bucket.csv-bucket.arn]
+    }
+  }
+}
+
+
+
 resource "aws_iam_policy" "lambda_logging" {
   name        = "lambda_logging"
   path        = "/"
@@ -55,7 +77,7 @@ resource "aws_s3_bucket" "json-bucket" {
 }
 
 #create S3 bucket for csv objects
-resource "aws_s3_bucket" "csv-objects" {
+resource "aws_s3_bucket" "csv-bucket" {
   bucket = "bucket-for-csv-objects"
 }
 
@@ -87,8 +109,8 @@ resource "aws_lambda_permission" "allow_bucket" {
   source_arn    = aws_s3_bucket.json-bucket.arn
 }
 
-#create S3 bucket notification resource
-resource "aws_s3_bucket_notification" "json_upload_notification" {
+#create S3 bucket notification resource to trigger lambda function
+resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   bucket = aws_s3_bucket.json-bucket.id
 
   lambda_function {
@@ -99,4 +121,20 @@ resource "aws_s3_bucket_notification" "json_upload_notification" {
   }
 
   depends_on = [aws_lambda_permission.allow_bucket]
+}
+
+#create sns topic
+resource "aws_sns_topic" "conversion_complete_topic" {
+  name   = "JSON_to_CSV_conversion_complete"
+  policy = data.aws_iam_policy_document.json_bucket_topic.json
+}
+
+resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
+  bucket = aws_s3_bucket.csv_bucket.id
+
+  topic {
+    topic_arn     = aws_sns_topic.topic.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_suffix = ".csv"
+  }
 }
