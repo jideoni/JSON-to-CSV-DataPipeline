@@ -152,6 +152,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
 #create sns topic for csv conversion complete
 resource "aws_sns_topic" "conversion_complete_topic" {
   name   = "JSON_to_CSV_conversion_complete"
+  display_name = "CSV-File-Ready-TF"
   policy = data.aws_iam_policy_document.json_bucket_topic.json
 }
 
@@ -168,7 +169,6 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
 
 #create subscription for email
 resource "aws_sns_topic_subscription" "email_target" {
-  name = "CSV-File-Ready-TF"
   topic_arn = "arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete" 
   protocol  = "email"
   endpoint  = "onibabajide34@gmail.com"
