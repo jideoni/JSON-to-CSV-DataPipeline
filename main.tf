@@ -36,7 +36,7 @@ resource "aws_s3_bucket" "csv-objects" {
 #create lambda function
 resource "aws_lambda_function" "csv_to_json_lambda" {
   filename      = "lambda_function_payload.zip"
-  function_name = "var.lambda_function_name"
+  function_name = var.lambda_function_name
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "lambda_handler"
 
