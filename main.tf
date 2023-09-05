@@ -72,10 +72,10 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
 
   timeout = 3
 
-  depends_on = [
-    aws_iam_role_policy_attachment.lambda_logs,
-    aws_cloudwatch_log_group.CSV_to_JSON-function-log-group,
-  ]
+  #depends_on = [
+    #aws_iam_role_policy_attachment.lambda_logs,
+    #aws_cloudwatch_log_group.CSV_to_JSON-function-log-group,
+  #]
 }
 
 resource "aws_cloudwatch_log_group" "CSV_to_JSON-function-log-group" {
