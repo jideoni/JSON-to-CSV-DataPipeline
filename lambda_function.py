@@ -7,7 +7,7 @@ import logging
 print('Loading function') 
 region = 'us-east-1'
 #bucket_name = 'csv-bucket-3534r35d'
-csv_bucket_name = 'bucket-for-csv-objects'
+csv_bucket_name = 'bucket-for-converted-csv-objects'
 csv_object_name = 'converted-csv-object'
 
 
