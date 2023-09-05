@@ -25,6 +25,18 @@ data "aws_iam_policy_document" "lambda_logging" {
   }
 }
 
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
 #create an iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "iam_for_lambda"
