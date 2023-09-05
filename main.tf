@@ -30,6 +30,19 @@ data "aws_iam_policy_document" "lambda_logging" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_s3_permissions" {
+  statement {
+    effect = "Allow"
+
+      actions = [
+        "s3:*",
+        "s3-object-lambda:*",
+      ]
+
+      resources = ["arn:aws:s3:us-east-1:380255901104:*"]
+  }
+}
+
 data "aws_iam_policy_document" "json_bucket_topic" {
   statement {
     effect = "Allow"
@@ -64,11 +77,24 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
+resource "aws_iam_policy" "lambda_s3_permissions" {
+  name        = "lambda_s3_permissions"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_s3_permissions.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_s3_permissions.arn
+}
+
 #create an iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
+
 
 data "archive_file" "lambda-function" {
   type        = "zip"
