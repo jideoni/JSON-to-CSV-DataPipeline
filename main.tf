@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "json_bucket_topic" {
     }
 
     actions   = ["SNS:Publish"]
-    resources = ["arn:aws:sns:*:*:s3-event-notification-topic"]
+    resources = ["arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete"]
 
     condition {
       test     = "ArnLike"
@@ -130,7 +130,7 @@ resource "aws_sns_topic" "conversion_complete_topic" {
 }
 
 #create sns trigger for csv bucket
-resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns_notif" {
+resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   bucket = aws_s3_bucket.csv-bucket.id
 
   topic {
