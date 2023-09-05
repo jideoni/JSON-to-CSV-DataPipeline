@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
         "s3-object-lambda:*",
       ]
 
-      resources = ["arn:aws:s3:*:*:*"]
+      resources = ["arn:aws:s3:::*/*"]
   }
 }
 
