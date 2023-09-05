@@ -1,8 +1,3 @@
-resource "aws_cloudwatch_log_group" "CSV_to_JSON-function-log-group" {
-  name              = "/aws/lambda/${var.lambda_function_name}"
-  retention_in_days = 30
-}
-
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
@@ -81,4 +76,9 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
     aws_iam_role_policy_attachment.lambda_logs,
     aws_cloudwatch_log_group.CSV_to_JSON-function-log-group,
   ]
+}
+
+resource "aws_cloudwatch_log_group" "CSV_to_JSON-function-log-group" {
+  name              = "/aws/lambda/${var.lambda_function_name}"
+  retention_in_days = 30
 }
