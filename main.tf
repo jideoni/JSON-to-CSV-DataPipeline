@@ -130,7 +130,7 @@ resource "aws_sns_topic" "conversion_complete_topic" {
 }
 
 #create sns trigger for csv bucket
-resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
+resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns_notif" {
   bucket = aws_s3_bucket.csv-bucket.id
 
   topic {
