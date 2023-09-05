@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "lambda_logging" {
       "s3:PutObject",
       "s3:CreateBucket",
       "s3:*",
-      " s3-object-lambda:*",
+      "s3-object-lambda:*",
     ]
 
     resources = ["arn:aws:logs:*:*:*"]
