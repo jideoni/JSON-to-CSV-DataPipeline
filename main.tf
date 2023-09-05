@@ -78,7 +78,7 @@ resource "aws_s3_bucket" "json-bucket" {
 
 #create S3 bucket for csv objects
 resource "aws_s3_bucket" "csv-bucket" {
-  bucket = "bucket-for-csv-objects"
+  bucket = "bucket-for-converted-csv-objects"
 }
 
 #create lambda function
