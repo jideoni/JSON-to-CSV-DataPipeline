@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "json_bucket_topic" {
     }
 
     actions   = ["SNS:Publish"]
-    resources = ["arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete"]
+    resources = ["arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete"] 
 
     condition {
       test     = "ArnLike"
