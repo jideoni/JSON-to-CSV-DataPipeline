@@ -90,7 +90,6 @@ resource "aws_iam_role" "iam_for_lambda" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-
 data "archive_file" "lambda-function" {
   type        = "zip"
   source_file = "lambda_function.py"
@@ -99,12 +98,12 @@ data "archive_file" "lambda-function" {
 
 #create S3 bucket for json objects
 resource "aws_s3_bucket" "json-bucket" {
-  bucket = "bucket-for-json-objects-uploads"
+  bucket = var.json_bucket_name
 }
 
 #create S3 bucket for csv objects
 resource "aws_s3_bucket" "csv-bucket" {
-  bucket = "bucket-for-converted-csv-objects"
+  bucket = var.csv_bucket_name
 }
 
 #create lambda function
@@ -117,7 +116,6 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
   source_code_hash = data.archive_file.lambda-function.output_base64sha256
 
   runtime = "python3.9"
-
   timeout = 3
 
   #depends_on = [
@@ -142,7 +140,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
     events              = ["s3:ObjectCreated:*"]
-    #filter_prefix       = "AWSLogs/"
+    #filter_prefix      = "AWSLogs/"
     filter_suffix       = ".json"
   }
 
@@ -151,7 +149,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
 
 #create sns topic for csv conversion complete
 resource "aws_sns_topic" "conversion_complete_topic" {
-  name   = "JSON_to_CSV_conversion_complete"
+  name   = var.sns_topic_name
   display_name = "CSV-File-Ready-TF"
   policy = data.aws_iam_policy_document.json_bucket_topic.json
 }
