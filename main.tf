@@ -21,7 +21,8 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["arn:aws:logs:*:*:*"]
+    #resources = ["arn:aws:logs:us-east-1:*:*"]
+    resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/var.lambda_function_name*"]
   }
 }
 
@@ -30,11 +31,12 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
     effect = "Allow"
 
       actions = [
-        "s3:*",
+        "s3:PutObject",
         "s3-object-lambda:*",
       ]
 
-      resources = ["arn:aws:s3:::*/*"]
+      #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
+      resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
   }
 }
 
@@ -48,7 +50,7 @@ data "aws_iam_policy_document" "json_bucket_topic" {
     }
 
     actions   = ["SNS:Publish"]
-    resources = ["arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete"]
+    resources = ["arn:aws:sns:us-east-1:380255901104:aws_sns_topic.conversion_complete_topic.name"]
 
     condition {
       test     = "ArnLike"
@@ -57,8 +59,6 @@ data "aws_iam_policy_document" "json_bucket_topic" {
     }
   }
 }
-
-
 
 resource "aws_iam_policy" "lambda_logging" {
   name        = "lambda_logging"
@@ -167,7 +167,7 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
 
 #create subscription for email
 resource "aws_sns_topic_subscription" "email_target" {
-  topic_arn = "arn:aws:sns:us-east-1:380255901104:JSON_to_CSV_conversion_complete" 
+  topic_arn = "arn:aws:sns:us-east-1:380255901104:aws_sns_topic.conversion_complete_topic.name" 
   protocol  = "email"
   endpoint  = "onibabajide34@gmail.com"
 }
