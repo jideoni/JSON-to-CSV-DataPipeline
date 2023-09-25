@@ -132,32 +132,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   depends_on = [aws_lambda_permission.allow_bucket]
 }
 
-data "aws_iam_policy_document" "csv_bucket_topic" {
-  statement {
-    effect = "Allow"
 
-    principals {
-      type        = "Service"
-      identifiers = ["s3.amazonaws.com"]
-    }
-
-    actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.conversion_complete_topic.arn]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_s3_bucket.csv-bucket.arn]
-    }
-  }
-}
-
-#create sns topic for csv conversion complete
-resource "aws_sns_topic" "conversion_complete_topic" {
-  name   = var.sns_topic_name
-  display_name = "CSV-File-Ready-TF"
-  policy = data.aws_iam_policy_document.csv_bucket_topic.json
-}
 
 #create sns trigger for csv bucket
 resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
