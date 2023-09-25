@@ -4,12 +4,12 @@ variable "lambda_function_name" {
 
 variable "json_bucket_name" {
   description = "The name of the JSON S3 bucket"
-  default = "bucket-for-json-objects-uploads-TF"
+  default = "bucket-for-json-objects-uploads-tf"
 }
 
 variable "csv_bucket_name" {
   description = "The name of the CSV S3 bucket"
-  default = "bucket-for-converted-csv-objects-TF"
+  default = "bucket-for-converted-csv-objects-tf"
 }
 
 variable "csv_object_name" {
