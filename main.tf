@@ -129,7 +129,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
     #filter_suffix       = ".json"
   #}
 
-  depends_on = [aws_lambda_permission.allow_bucket]
+  #depends_on = [aws_lambda_permission.allow_bucket]
 }
 
 data "aws_iam_policy_document" "allow_S3_to_publish" {
