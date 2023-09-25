@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "json_bucket_topic" {
     }
 
     actions   = ["SNS:Publish"]
-    resources = ["arn:aws:sns:us-east-1:380255901104:aws_sns_topic.conversion_complete_topic.name"]
+    resources = [aws_sns_topic.conversion_complete_topic.arn]
 
     condition {
       test     = "ArnLike"
@@ -202,6 +202,24 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
       values   = [aws_s3_bucket.json-bucket.arn]
+    }
+  },
+  {
+    sid    = "Allow Lambda to recieve events"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions   = ["sqs:RecieveMessage"]
+    resources = [aws_sqs_queue.JSON_event_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
   }
 }
