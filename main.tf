@@ -112,7 +112,7 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
 
 resource "aws_lambda_event_source_mapping" "from_sqs" {
   event_source_arn = aws_sqs_queue.JSON_event_queue.arn
-  function_name    = aws_lambda_function.CSV_to_JSON.name
+  function_name    = aws_lambda_function.csv_to_json_lambda.arn
 }
 
 #create lambda permission resource
