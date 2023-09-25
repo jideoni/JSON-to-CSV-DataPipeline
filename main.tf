@@ -257,7 +257,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       identifiers = ["lambda.amazonaws.com"]
     }
 
-    actions   = ["sqs:RecieveMessage"]
+    actions   = ["sqs:ReceiveMessage"]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
     condition {
