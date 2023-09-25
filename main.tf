@@ -131,7 +131,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   queue {
     queue_arn     = aws_sqs_queue.JSON_event_queue.arn
     events        = ["s3:ObjectCreated:*"]
-    filter_suffix = ".json"
+    #filter_suffix = ".json"
   }
 }
 
