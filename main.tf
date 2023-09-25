@@ -132,7 +132,7 @@ resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   depends_on = [aws_lambda_permission.allow_bucket]
 }
 
-data "aws_iam_policy_document" "csv_bucket_topic" {
+data "aws_iam_policy_document" "allow_S3_to_publish" {
   statement {
     effect = "Allow"
 
@@ -152,11 +152,15 @@ data "aws_iam_policy_document" "csv_bucket_topic" {
   }
 }
 
+resource "aws_sns_topic_policy" "attach_allow_s3_policy" {
+  arn = aws_sns_topic.conversion_complete_topic.arn
+  policy = data.aws_iam_policy_document.allow_S3_to_publish.json
+}
+
 #create sns topic for csv conversion complete
 resource "aws_sns_topic" "conversion_complete_topic" {
   name   = var.sns_topic_name
   display_name = "CSV-File-Ready-TF"
-  policy = data.aws_iam_policy_document.csv_bucket_topic.json
 }
 
 #create sns trigger for csv bucket
@@ -176,14 +180,6 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   #protocol  = "email"
   #endpoint  = "onibabajide34@gmail.com"
 #}
-
-resource "aws_sqs_queue" "JSON_event_queue" {
-  name                      = var.JSON_event_queue_name
-  delay_seconds             = 1
-  max_message_size          = 1024
-  message_retention_seconds = 300
-  receive_wait_time_seconds = 2
-}
 
 data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
   statement {
@@ -227,4 +223,12 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   queue_url = aws_sqs_queue.JSON_event_queue.id
   policy    = data.aws_iam_policy_document.sqs_allow_message_from_JSON_bucket.json
+}
+
+resource "aws_sqs_queue" "JSON_event_queue" {
+  name                      = var.JSON_event_queue_name
+  delay_seconds             = 1
+  max_message_size          = 1024
+  message_retention_seconds = 300
+  receive_wait_time_seconds = 2
 }

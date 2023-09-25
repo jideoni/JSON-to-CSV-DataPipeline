@@ -7,12 +7,12 @@ import os
 #from botocore.exceptions import ClientErro
 
 print('Loading function') 
-region = 'us-east-1'
+#region = 'us-east-1'
 #bucket_name = 'csv-bucket-3534r35d'
-csv_bucket_name = 'bucket-for-converted-csv-objects'
-csv_object_name = 'converted-csv-object'
+#csv_bucket_name = 'bucket-for-converted-csv-objects'
+#csv_object_name = 'converted-csv-object'
 
-region = os.environ['region']
+#region = os.environ['region']
 csv_bucket_name = os.environ['csv_bucket_name']
 csv_object_name = os.environ['csv_object_name']
 
