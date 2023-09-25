@@ -14,21 +14,19 @@ data "aws_iam_policy_document" "assume_role" {
 data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   statement {
     effect = "Allow"
+    actions   = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [aws_sqs_queue.JSON_event_queue.arn]
 
-      principals {
-        type        = "Service"
-        identifiers = ["lambda.amazonaws.com"]
-      }
-
-      actions   = ["sqs:RecieveMessage"]
-      resources = [aws_sqs_queue.JSON_event_queue.arn]
-
-      condition {
-        test     = "ArnEquals"
-        variable = "aws:SourceArn"
-        values   = [aws_lambda_function.csv_to_json_lambda.arn]
-      }
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
+  }
 }
 
 resource "aws_iam_policy" "lambda_SQS_recieve" {
