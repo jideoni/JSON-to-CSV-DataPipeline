@@ -60,7 +60,11 @@ data "aws_iam_policy_document" "lambda_logging" {
   statement {
     effect = "Allow"
 
-    actions = ["sqs:RecieveMessage"]
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
 
     resources = [aws_sqs_queue.JSON_event_queue.arn]
   }
