@@ -190,8 +190,10 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     sid    = "Allow S3 to send events"
     effect = "Allow"
 
-    type        = "Service"
-    identifiers = ["s3.amazonaws.com"]
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
 
     actions   = ["sqs:SendMessage"]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
