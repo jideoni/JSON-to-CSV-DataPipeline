@@ -122,6 +122,13 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
     #aws_iam_role_policy_attachment.lambda_logs,
     #aws_cloudwatch_log_group.CSV_to_JSON-function-log-group,
   #]
+  environment {
+    variables = {
+      region = "us-east-1",
+      csv_bucket_name = var.csv_bucket_name,
+      csv_object_name = var.csv_object_name
+    }
+  }
 }
 
 #create lambda permission resource
