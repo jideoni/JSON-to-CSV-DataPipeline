@@ -174,12 +174,12 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   }
 }
 
-#create subscription for email
-#resource "aws_sns_topic_subscription" "email_target" {
-  #topic_arn = "arn:aws:sns:us-east-1:380255901104:aws_sns_topic.conversion_complete_topic.name" 
-  #protocol  = "email"
-  #endpoint  = "onibabajide34@gmail.com"
-#}
+create subscription for email
+resource "aws_sns_topic_subscription" "email_target" {
+  topic_arn = [aws_sns_topic.conversion_complete_topic.arn] 
+  protocol  = "email"
+  endpoint  = "onibabajide34@gmail.com"
+}
 
 data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
   statement {
