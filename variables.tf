@@ -1,5 +1,5 @@
 variable "lambda_function_name" {
-  default = "CSV_to_JSON"
+  default = "CSV_to_JSONN"
 }
 
 variable "json_bucket_name" {
