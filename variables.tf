@@ -29,5 +29,5 @@ variable "region" {
 
 variable "JSON_event_queue_name" {
   description = "name of SQS q that recieves messages from JSON bucket"
-  default = "event_from_JSON_bucket"
+  default = "event_from_JSON_bucket_TF"
 }
