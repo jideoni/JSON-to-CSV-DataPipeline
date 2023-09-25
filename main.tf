@@ -111,12 +111,12 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
 }
 
 #create lambda permission resource
-resource "aws_lambda_permission" "allow_bucket" {
-  statement_id  = "AllowExecutionFromJSON-S3Bucket"
+resource "aws_lambda_permission" "allow_sqs" {
+  statement_id  = "AllowExecutionFromJSON-SQS-Queue"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.csv_to_json_lambda.arn
-  principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_bucket.json-bucket.arn
+  principal     = "sqs.amazonaws.com"
+  source_arn    = aws_sqs_queue.JSON_event_queue.arn
 }
 
 #create S3 bucket notification resource to trigger lambda function
