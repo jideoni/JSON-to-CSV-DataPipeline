@@ -124,6 +124,17 @@ resource "aws_s3_bucket" "json-bucket" {
   bucket = var.json_bucket_name
 }
 
+#create S3 bucket notification resource to send message to Queue
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.json-bucket.id
+
+  queue {
+    queue_arn     = aws_sqs_queue.JSON_event_queue.arn
+    events        = ["s3:ObjectCreated:*"]
+    filter_suffix = ".json"
+  }
+}
+
 #create S3 bucket for csv objects
 resource "aws_s3_bucket" "csv-bucket" {
   bucket = var.csv_bucket_name
@@ -165,19 +176,6 @@ resource "aws_lambda_permission" "allow_sqs" {
   function_name = aws_lambda_function.csv_to_json_lambda.arn
   principal     = "sqs.amazonaws.com"
   source_arn    = aws_sqs_queue.JSON_event_queue.arn
-}
-
-#create S3 bucket notification resource to trigger lambda function
-resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
-  bucket = aws_s3_bucket.json-bucket.id
-
-  #lambda_function {
-    #lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
-    #events              = ["s3:ObjectCreated:*"]
-    #filter_suffix       = ".json"
-  #}
-
-  #depends_on = [aws_lambda_permission.allow_bucket]
 }
 
 data "aws_iam_policy_document" "allow_S3_to_publish" {
