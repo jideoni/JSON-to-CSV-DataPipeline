@@ -144,12 +144,11 @@ resource "aws_lambda_permission" "allow_bucket" {
 resource "aws_s3_bucket_notification" "json_bucket_trigger_lambda" {
   bucket = aws_s3_bucket.json-bucket.id
 
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
-    events              = ["s3:ObjectCreated:*"]
-    #filter_prefix      = "AWSLogs/"
-    filter_suffix       = ".json"
-  }
+  #lambda_function {
+    #lambda_function_arn = aws_lambda_function.csv_to_json_lambda.arn
+    #events              = ["s3:ObjectCreated:*"]
+    #filter_suffix       = ".json"
+  #}
 
   depends_on = [aws_lambda_permission.allow_bucket]
 }
