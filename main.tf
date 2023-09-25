@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "lambda_logging" {
     actions = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
+      "sqs:GetQueueAttributes" 
     ]
 
     resources = [aws_sqs_queue.JSON_event_queue.arn]
