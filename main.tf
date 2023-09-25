@@ -181,7 +181,7 @@ resource "aws_sqs_queue" "JSON_event_queue" {
   name                      = var.JSON_event_queue_name
   delay_seconds             = 1
   max_message_size          = 1024
-  message_retention_seconds = 5
+  message_retention_seconds = 300
   receive_wait_time_seconds = 2
 }
 
