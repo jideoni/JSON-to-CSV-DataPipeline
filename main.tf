@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "lambda_logging" {
     ]
 
     #resources = ["arn:aws:logs:us-east-1:*:*"]
-    resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/var.lambda_function_name:*"]
+    resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/CSV_to_JSON:*"]
   }
   statement {
     effect = "Allow"
