@@ -176,3 +176,35 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   #protocol  = "email"
   #endpoint  = "onibabajide34@gmail.com"
 #}
+
+resource "aws_sqs_queue" "JSON_event_queue" {
+  name                      = var.JSON_event_queue_name
+  delay_seconds             = 1
+  max_message_size          = 1024
+  message_retention_seconds = 5
+  receive_wait_time_seconds = 2
+}
+
+data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
+  statement {
+    sid    = "Allow S3 to send events"
+    effect = "Allow"
+
+    type        = "Service"
+    identifiers = ["s3.amazonaws.com"]
+
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.JSON_event_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_s3_bucket.json-bucket.arn]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
+  queue_url = aws_sqs_queue.JSON_event_queue.id
+  policy    = data.aws_iam_policy_document.sqs_allow_message_from_JSON_bucket.json
+}

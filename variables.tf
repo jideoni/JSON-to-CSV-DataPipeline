@@ -26,3 +26,8 @@ variable "region" {
   description = "deployment region of S3 buckets"
   default = "us-east-1"
 }
+
+variable "JSON_event_queue_name" {
+  description = "name of SQS q that recieves messages from JSON bucket"
+  default = "event_from_JSON_bucket"
+}
