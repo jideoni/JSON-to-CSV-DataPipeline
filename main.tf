@@ -11,9 +11,8 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "allow_lambda_to_recieveSQSMessage" {
+data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   statement {
-    sid    = "Allow Lambda to recieve events"
     effect = "Allow"
 
       principals {
@@ -36,7 +35,7 @@ resource "aws_iam_policy" "lambda_SQS_recieve" {
   name        = "lambda_SQS_recieve_name"
   path        = "/"
   description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.allow_lambda_to_recieveSQSMessage.json
+  policy      = data.aws_iam_policy_document.allow_lambda_to_receiveSQSMessage.json
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_SQS" {
