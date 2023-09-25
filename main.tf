@@ -174,7 +174,7 @@ resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
   }
 }
 
-create subscription for email
+#create subscription for email
 resource "aws_sns_topic_subscription" "email_target" {
   topic_arn = [aws_sns_topic.conversion_complete_topic.arn] 
   protocol  = "email"
