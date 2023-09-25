@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "assume_role" {
 data "aws_iam_policy_document" "allow_lambda_to_recieveSQSMessage" {
   statement {
     sid    = "Allow Lambda to recieve events"
-      effect = "Allow"
+    effect = "Allow"
 
       principals {
         type        = "Service"
