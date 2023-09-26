@@ -135,11 +135,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
-resource "aws_s3_bucket_policy" "allow_access_from_lambda_fn" {
-  bucket = aws_s3_bucket.json-bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_lambda_fn_document.json
-}
-
 data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
   statement {
     principals {
@@ -157,6 +152,11 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
       #"${aws_s3_bucket.json-bucket.arn}/*",
     ]
   }
+}
+
+resource "aws_s3_bucket_policy" "allow_access_from_lambda_fn" {
+  bucket = aws_s3_bucket.json-bucket.id
+  policy = data.aws_iam_policy_document.allow_access_from_lambda_fn_document.json
 }
 
 #create S3 bucket for csv objects
