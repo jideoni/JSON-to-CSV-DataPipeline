@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "assume_role" {
 
 data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   statement {
-    effect = "Allow"
+    effect    = "Allow"
     actions   = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
@@ -137,6 +137,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
 data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
   statement {
+    effect = "Allow"
+    
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
