@@ -73,6 +73,18 @@ data "aws_iam_policy_document" "lambda_logging" {
   }
 }
 
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
 data "aws_iam_policy_document" "lambda_s3_permissions" {
   statement {
     effect = "Allow"
@@ -86,22 +98,10 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
   }
 }
 
-resource "aws_iam_policy" "lambda_logging" {
-  name        = "lambda_logging"
-  path        = "/"
-  description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.lambda_logging.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_logging.arn
-}
-
 resource "aws_iam_policy" "lambda_s3_permissions" {
-  name        = "lambda_s3_permissions"
+  name        = "lambda_s3_put_permissions"
   path        = "/"
-  description = "IAM policy for logging from a lambda"
+  description = "IAM policy for put to s3"
   policy      = data.aws_iam_policy_document.lambda_s3_permissions.json
 }
 
@@ -109,6 +109,37 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.lambda_s3_permissions.arn
 }
+
+
+
+
+data "aws_iam_policy_document" "lambda_s3_get_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:*",
+      "s3-object-lambda:*",
+    ]
+    #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
+    resources = [aws_s3_bucket.json-bucket.arn]
+  }
+}
+
+resource "aws_iam_policy" "lambda_s3_permissions_to_get_from_s3" {
+  name        = "lambda_s3_get_permissions"
+  path        = "/"
+  description = "IAM policy for get from s3"
+  policy      = data.aws_iam_policy_document.lambda_s3_get_permissions.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_get" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_s3_permissions_to_get_from_s3.arn
+}
+
+
+
 
 #create an iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
