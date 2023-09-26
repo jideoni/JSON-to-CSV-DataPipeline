@@ -147,7 +147,7 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
     actions = [
       "s3:GetObject",
       "s3:ListBucket",
-      #"s3:*",
+      "s3:*",
     ]
 
     resources = [
