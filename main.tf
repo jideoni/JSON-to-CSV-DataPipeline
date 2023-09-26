@@ -147,13 +147,19 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
     actions = [
       "s3:GetObject",
       "s3:ListBucket",
-      "s3:*",
+      #"s3:*",
     ]
 
     resources = [
       aws_s3_bucket.json-bucket.arn,
       "${aws_s3_bucket.json-bucket.arn}/*",
     ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.CSV_to_JSON.arn]
+    }
   }
 }
 
