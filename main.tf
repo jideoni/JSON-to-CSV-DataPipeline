@@ -78,8 +78,10 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
       ]
 
       #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
-      #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
-      resources = [aws_s3_bucket.csv-bucket.arn] 
+      resources = [
+        aws_s3_bucket.csv-bucket.arn,
+        aws_s3_bucket.json-bucket.arn,
+      ]
   }
 }
 
@@ -156,7 +158,7 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
     ]
 
     condition {
-      test     = "ArnEquals"
+      test     = "ArnLike"
       variable = "aws:SourceArn"
       values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
