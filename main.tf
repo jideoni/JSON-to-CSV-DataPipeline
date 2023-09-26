@@ -135,6 +135,30 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
+resource "aws_s3_bucket_policy" "allow_access_from_sqs" {
+  bucket = aws_s3_bucket.json-bucket.id
+  policy = data.aws_iam_policy_document.allow_access_from_sqs_document.json
+}
+
+data "aws_iam_policy_document" "allow_access_from_sqs_document" {
+  statement {
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      aws_s3_bucket.json-bucket.arn
+      #"${aws_s3_bucket.json-bucket.arn}/*",
+    ]
+  }
+}
+
 #create S3 bucket for csv objects
 resource "aws_s3_bucket" "csv-bucket" {
   bucket = var.csv_bucket_name
