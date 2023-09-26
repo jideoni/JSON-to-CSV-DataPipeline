@@ -41,6 +41,11 @@ resource "aws_iam_role_policy_attachment" "lambda_SQS" {
   policy_arn = aws_iam_policy.lambda_SQS_recieve.arn
 }
 
+resource "aws_cloudwatch_log_group" "json-csv-log-group" {
+  name              = "/aws/lambda/${var.lambda_function_name}"
+  retention_in_days = 90
+}
+
 data "aws_iam_policy_document" "lambda_logging" {
   statement {
     effect = "Allow"
@@ -51,8 +56,9 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["arn:aws:logs:us-east-1:*:*"]
+    #resources = ["arn:aws:logs:us-east-1:*:*"]
     #resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/CSV_to_JSON:*"]
+    resources = aws_cloudwatch_log_group.json-csv-log-group.arn
   }
   statement {
     effect = "Allow"
@@ -70,18 +76,13 @@ data "aws_iam_policy_document" "lambda_logging" {
 data "aws_iam_policy_document" "lambda_s3_permissions" {
   statement {
     effect = "Allow"
-
-      actions = [
-        "s3:PutObject",
-        "s3:*",
-        "s3-object-lambda:*",
-      ]
-
-      #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
-      resources = [
-        aws_s3_bucket.csv-bucket.arn,
-        aws_s3_bucket.json-bucket.arn,
-      ]
+    actions = [
+      "s3:PutObject",
+      "s3:*",
+      "s3-object-lambda:*",
+    ]
+    #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
+    resources = aws_s3_bucket.csv-bucket.arn
   }
 }
 
