@@ -158,7 +158,7 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_lambda_function.CSV_to_JSON.arn]
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
   }
 }
