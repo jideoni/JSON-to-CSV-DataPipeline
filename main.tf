@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "lambda_logging" {
 
     #resources = ["arn:aws:logs:us-east-1:*:*"]
     #resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/CSV_to_JSON:*"]
-    resources = aws_cloudwatch_log_group.json-csv-log-group.arn
+    resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
   }
   statement {
     effect = "Allow"
@@ -82,7 +82,7 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
       "s3-object-lambda:*",
     ]
     #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
-    resources = aws_s3_bucket.csv-bucket.arn
+    resources = [aws_s3_bucket.csv-bucket.arn]
   }
 }
 
