@@ -138,7 +138,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
   statement {
     effect = "Allow"
-    
+
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
@@ -269,7 +269,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
     condition {
-      test     = "ArnEquals"
+      test     = "ArnLike"
       variable = "aws:SourceArn"
       values   = [aws_s3_bucket.json-bucket.arn]
     }
@@ -287,7 +287,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
     condition {
-      test     = "ArnEquals"
+      test     = "ArnLike"
       variable = "aws:SourceArn"
       values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
