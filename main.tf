@@ -51,8 +51,8 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
 
-    #resources = ["arn:aws:logs:us-east-1:*:*"]
-    resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/CSV_to_JSON:*"]
+    resources = ["arn:aws:logs:us-east-1:*:*"]
+    #resources = ["arn:aws:logs:us-east-1:380255901104:/aws/lambda/CSV_to_JSON:*"]
   }
   statement {
     effect = "Allow"
