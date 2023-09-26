@@ -148,8 +148,8 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
     ]
 
     resources = [
-      aws_s3_bucket.json-bucket.arn
-      #"${aws_s3_bucket.json-bucket.arn}/*",
+      aws_s3_bucket.json-bucket.arn,
+      "${aws_s3_bucket.json-bucket.arn}/*",
     ]
   }
 }
@@ -263,7 +263,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       identifiers = ["s3.amazonaws.com"]
     }
 
-    actions   = ["sqs:SendMessage"]
+    actions   = ["SQS:SendMessage"]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
     condition {
@@ -281,7 +281,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       identifiers = ["lambda.amazonaws.com"]
     }
 
-    actions   = ["sqs:ReceiveMessage"]
+    actions   = ["SQS:ReceiveMessage"]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
     condition {
