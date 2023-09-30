@@ -24,7 +24,7 @@ s3_client = boto3.client('s3')
 sqs = boto3.client('sqs')
 
 def lambda_handler(event, context):
-    print(event)
+    #print(event)
     #print("Received event: " + json.dumps(event, indent=2))
 
     buildCSV = ""
