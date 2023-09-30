@@ -90,12 +90,10 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
     effect = "Allow"
     actions = [
       "s3:PutObject",
-      "s3:*",
-      "s3-object-lambda:*",
+      "s3:ListAllMyBuckets",
+      #"s3:*",
+      #"s3-object-lambda:*",
     ]
-    #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
-    #resources = [aws_s3_bucket.csv-bucket.arn]
-    #resources = ["arn:aws:s3:::*/*"]
     resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
   }
 }
@@ -120,12 +118,10 @@ data "aws_iam_policy_document" "lambda_s3_get_permissions" {
     effect = "Allow"
     actions = [
       "s3:GetObject",
-      "s3:*",
-      "s3-object-lambda:*",
+      #"s3:*",
+      "s3:ListAllMyBuckets",
+      #"s3-object-lambda:*",
     ]
-    #resources = ["arn:aws:s3:::var.json_bucket_name/*"]
-    #resources = [aws_s3_bucket.json-bucket.arn]
-    #resources = ["arn:aws:s3:::*/*"]
     resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
   }
 }
