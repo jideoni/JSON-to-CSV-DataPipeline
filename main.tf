@@ -212,17 +212,17 @@ data "aws_iam_policy_document" "lambda_logging" {
     #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
     resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}"]
   }
-  #statement {
-    #effect = "Allow"
+  statement {
+    effect = "Allow"
 
-    #actions = [
-      #"sqs:ReceiveMessage",
-      #"sqs:DeleteMessage",
-      #"sqs:GetQueueAttributes"
-    #]
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
 
-    #resources = [aws_sqs_queue.JSON_event_queue.arn]
-  #}
+    resources = [aws_sqs_queue.JSON_event_queue.arn]
+  }
 }
 
 resource "aws_iam_policy" "lambda_logging" {
