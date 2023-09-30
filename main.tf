@@ -1,126 +1,21 @@
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
+#######################         S3        ####################################
+#create JSON bucket
+resource "aws_s3_bucket" "json-bucket" {
+  bucket = var.json_bucket_name
 }
 
-data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
-  statement {
-    effect    = "Allow"
-    actions   = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
-    ]
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
-  }
+#create S3 bucket for csv objects
+resource "aws_s3_bucket" "csv-bucket" {
+  bucket = var.csv_bucket_name
 }
 
-resource "aws_iam_policy" "lambda_SQS_recieve" {
-  name        = "lambda_SQS_recieve_name"
-  path        = "/"
-  description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.allow_lambda_to_receiveSQSMessage.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_SQS" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_SQS_recieve.arn
-}
-
-resource "aws_cloudwatch_log_group" "json-csv-log-group" {
-  name              = "/aws/lambda/${var.lambda_function_name}"
-  retention_in_days = 90
-}
-
-data "aws_iam_policy_document" "lambda_logging" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-    ]
-
-    #resources = ["arn:aws:logs:us-east-1:*:*"]
-    resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
-    #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
-  }
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
-    ]
-
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
-  }
-}
-
-resource "aws_iam_policy" "lambda_logging" {
-  name        = "lambda_logging"
-  path        = "/"
-  description = "IAM policy for logging from a lambda"
-  policy      = data.aws_iam_policy_document.lambda_logging.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_logging.arn
-}
-
-data "aws_iam_policy_document" "lambda_s3_permissions" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:ListAllMyBuckets",
-      #"s3:*",
-      #"s3-object-lambda:*",
-    ]
-    resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
-  }
-}
-
-resource "aws_iam_policy" "lambda_s3_permissions" {
-  name        = "lambda_s3_put_permissions"
-  path        = "/"
-  description = "IAM policy for put to s3"
-  policy      = data.aws_iam_policy_document.lambda_s3_permissions.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_s3" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_s3_permissions.arn
-}
-
-
-
-
+#JSON bucket bucket-policy
 data "aws_iam_policy_document" "lambda_s3_get_permissions" {
   statement {
     effect = "Allow"
     actions = [
       "s3:GetObject",
-      #"s3:*",
       "s3:ListAllMyBuckets",
-      #"s3-object-lambda:*",
     ]
     resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
   }
@@ -138,35 +33,28 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_get" {
   policy_arn = aws_iam_policy.lambda_s3_permissions_to_get_from_s3.arn
 }
 
-
-
-
-#create an iam role for lambda
-resource "aws_iam_role" "iam_for_lambda" {
-  name               = "iam_for_lambda"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
-data "archive_file" "lambda-function" {
-  type        = "zip"
-  source_file = "lambda_function.py"
-  output_path = "lambda_function_payload.zip"
-}
-
-#create S3 bucket for json objects
-resource "aws_s3_bucket" "json-bucket" {
-  bucket = var.json_bucket_name
-}
-
-#create S3 bucket notification resource to send message to Queue
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.json-bucket.id
-
-  queue {
-    queue_arn     = aws_sqs_queue.JSON_event_queue.arn
-    events        = ["s3:ObjectCreated:*"]
-    #filter_suffix = ".json"
+#CSV bucket bucket-policy
+data "aws_iam_policy_document" "lambda_s3_put_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:ListAllMyBuckets",
+    ]
+    resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
   }
+}
+
+resource "aws_iam_policy" "lambda_s3_put_permissions" {
+  name        = "lambda_s3_put_permissions"
+  path        = "/"
+  description = "IAM policy for put to s3"
+  policy      = data.aws_iam_policy_document.lambda_s3_put_permissions.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_s3_put_permissions.arn
 }
 
 data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
@@ -197,14 +85,162 @@ data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
   }
 }
 
+#SNS permissions for CSV bucket
+data "aws_iam_policy_document" "allow_S3_to_publish" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+
+    actions   = ["SNS:Publish"]
+    resources = [aws_sns_topic.conversion_complete_topic.arn]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_s3_bucket.csv-bucket.arn]
+    }
+  }
+}
+
 resource "aws_s3_bucket_policy" "allow_access_from_lambda_fn" {
   bucket = aws_s3_bucket.json-bucket.id
   policy = data.aws_iam_policy_document.allow_access_from_lambda_fn_document.json
 }
 
-#create S3 bucket for csv objects
-resource "aws_s3_bucket" "csv-bucket" {
+#create JSON bucket notification resource to send message to Queue
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.json-bucket.id
+
+  queue {
+    queue_arn     = aws_sqs_queue.JSON_event_queue.arn
+    events        = ["s3:ObjectCreated:*"]
+    #filter_suffix = ".json"
+  }
+}
+
+#create CSV bucket notification
+resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
+  #bucket = aws_s3_bucket.csv-bucket.id
   bucket = var.csv_bucket_name
+
+  topic {
+    topic_arn     = aws_sns_topic.conversion_complete_topic.arn
+    events        = ["s3:ObjectCreated:*"]
+    #filter_suffix = ".csv"
+  }
+}
+
+##########################################################################################
+####################################   CLOUDWATCH  #######################################
+##########################################################################################
+#cloudwatch group creation
+resource "aws_cloudwatch_log_group" "json-csv-log-group" {
+  name              = "/aws/lambda/${var.lambda_function_name}"
+  retention_in_days = 90
+}
+
+##########################################################################################
+####################################   LAMBDA ############################################
+##########################################################################################
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+#create an iam role for lambda
+resource "aws_iam_role" "iam_for_lambda" {
+  name               = "iam_for_lambda"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+#SQS permissions for lambda
+data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [aws_sqs_queue.JSON_event_queue.arn]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
+    }
+  }
+}
+
+resource "aws_iam_policy" "lambda_SQS_recieve" {
+  name        = "lambda_SQS_recieve_name"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.allow_lambda_to_receiveSQSMessage.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_SQS" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_SQS_recieve.arn
+}
+
+#CloudWatch permissions for lambda
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    #resources = ["arn:aws:logs:us-east-1:*:*"]
+    resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
+    #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
+  }
+  #statement {
+    #effect = "Allow"
+
+    #actions = [
+      #"sqs:ReceiveMessage",
+      #"sqs:DeleteMessage",
+      #"sqs:GetQueueAttributes"
+    #]
+
+    #resources = [aws_sqs_queue.JSON_event_queue.arn]
+  #}
+}
+
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+#Lambda archive (code file) definition
+data "archive_file" "lambda-function" {
+  type        = "zip"
+  source_file = "lambda_function.py"
+  output_path = "lambda_function_payload.zip"
 }
 
 #create lambda function
@@ -231,12 +267,13 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
   }
 }
 
+#create event source mapping
 resource "aws_lambda_event_source_mapping" "from_sqs" {
   event_source_arn = aws_sqs_queue.JSON_event_queue.arn
   function_name    = aws_lambda_function.csv_to_json_lambda.arn
 }
 
-#create lambda permission resource
+#create lambda SQS invokation
 resource "aws_lambda_permission" "allow_sqs" {
   statement_id  = "AllowExecutionFromJSON-SQS-Queue"
   action        = "lambda:InvokeFunction"
@@ -245,26 +282,9 @@ resource "aws_lambda_permission" "allow_sqs" {
   source_arn    = aws_sqs_queue.JSON_event_queue.arn
 }
 
-data "aws_iam_policy_document" "allow_S3_to_publish" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["s3.amazonaws.com"]
-    }
-
-    actions   = ["SNS:Publish"]
-    resources = [aws_sns_topic.conversion_complete_topic.arn]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_s3_bucket.csv-bucket.arn]
-    }
-  }
-}
-
+##########################################################################################
+#####################################   SNS   ############################################
+##########################################################################################
 resource "aws_sns_topic_policy" "attach_allow_s3_policy" {
   arn = aws_sns_topic.conversion_complete_topic.arn
   policy = data.aws_iam_policy_document.allow_S3_to_publish.json
@@ -276,18 +296,6 @@ resource "aws_sns_topic" "conversion_complete_topic" {
   display_name = "CSV-File-Ready-TF"
 }
 
-#create sns trigger for csv bucket
-resource "aws_s3_bucket_notification" "csv_bucket_trigger_sns" {
-  #bucket = aws_s3_bucket.csv-bucket.id
-  bucket = var.csv_bucket_name
-
-  topic {
-    topic_arn     = aws_sns_topic.conversion_complete_topic.arn
-    events        = ["s3:ObjectCreated:*"]
-    #filter_suffix = ".csv"
-  }
-}
-
 #create subscription for email
 resource "aws_sns_topic_subscription" "email_target" {
   #topic_arn = "arn:aws:sns:us-east-1:380255901104:aws_sns_topic.conversion_complete_topic.name"
@@ -296,6 +304,9 @@ resource "aws_sns_topic_subscription" "email_target" {
   endpoint  = "onibabajide34@gmail.com"
 }
 
+##########################################################################################
+#####################################   SQS   ############################################
+##########################################################################################
 data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
   statement {
     sid    = "Allow S3 to send events"
@@ -340,6 +351,7 @@ resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   policy    = data.aws_iam_policy_document.sqs_allow_message_from_JSON_bucket.json
 }
 
+#SQS queue creation
 resource "aws_sqs_queue" "JSON_event_queue" {
   name                      = var.JSON_event_queue_name
   delay_seconds             = 0
