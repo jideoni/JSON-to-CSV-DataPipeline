@@ -208,9 +208,9 @@ data "aws_iam_policy_document" "lambda_logging" {
     ]
 
     #resources = ["arn:aws:logs:us-east-1:*:*"]
-    #resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
+    resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
     #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
-    resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}"]
+    #resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}"]
   }
   statement {
     effect = "Allow"
