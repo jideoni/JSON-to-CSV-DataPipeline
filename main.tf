@@ -359,4 +359,4 @@ resource "aws_sqs_queue" "JSON_event_queue" {
   message_retention_seconds = 300
   receive_wait_time_seconds = 2
   sqs_managed_sse_enabled    = false
-}
+} 
