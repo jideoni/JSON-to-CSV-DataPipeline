@@ -48,7 +48,7 @@ def lambda_handler(event, context):
                             for e,f in d.items():
                                 if e == 'name':
                                     bucket = f
-                                    
+                                    print(bucket)
     #key = urllib.parse.unquote_plus(body_in_json['Records'][0]['s3']['object']['key'], encoding='utf-8')
     for j in body_in_json.values():
         for x in j:
@@ -60,7 +60,7 @@ def lambda_handler(event, context):
                             for e,f in d.items():
                                 if e == 'key':
                                     key = f
-                                    
+                                    print(key)
     csv_object_name = "csv-object-of-" + key
     
     try:
