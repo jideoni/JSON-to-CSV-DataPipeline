@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "lambda_s3_permissions" {
     ]
     #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
     #resources = [aws_s3_bucket.csv-bucket.arn]
-    resources = "arn:aws:s3:::*"
+    resources = ["arn:aws:s3:::*/*"]
   }
 }
 
@@ -124,7 +124,7 @@ data "aws_iam_policy_document" "lambda_s3_get_permissions" {
     ]
     #resources = ["arn:aws:s3:::var.csv_bucket_name/*"]
     #resources = [aws_s3_bucket.json-bucket.arn]
-    resources = "arn:aws:s3:::*"
+    resources = ["arn:aws:s3:::*/*"]
   }
 }
 
