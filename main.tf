@@ -34,7 +34,7 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_get" {
 }
 
 #CSV bucket bucket-policy
-data "aws_iam_policy_document" "lambda_s3_put_permissions" {
+data "aws_iam_policy_document" "lambda_s3_put_permissions_document" {
   statement {
     effect = "Allow"
     actions = [
@@ -49,7 +49,7 @@ resource "aws_iam_policy" "lambda_s3_put_permissions" {
   name        = "lambda_s3_put_permissions"
   path        = "/"
   description = "IAM policy for put to s3"
-  policy      = data.aws_iam_policy_document.lambda_s3_put_permissions.json
+  policy      = data.aws_iam_policy_document.lambda_s3_put_permissions_document.json
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_s3" {
@@ -210,7 +210,7 @@ data "aws_iam_policy_document" "lambda_logging" {
     #resources = ["arn:aws:logs:us-east-1:*:*"]
     #resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
     #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
-    resource = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}:*"]
   }
   #statement {
     #effect = "Allow"
