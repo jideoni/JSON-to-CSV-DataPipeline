@@ -207,10 +207,9 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
 
-    #resources = ["arn:aws:logs:us-east-1:*:*"]
     resources = ["arn:aws:logs:us-east-1:380255901104:log-group:/aws/lambda/CSV_to_JSON:*"]
     #resources = [aws_cloudwatch_log_group.json-csv-log-group.arn]
-    #resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}"]
+    #resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}*"]
   }
   statement {
     effect = "Allow"
@@ -308,6 +307,7 @@ resource "aws_sns_topic_subscription" "email_target" {
 ##########################################################################################
 #####################################   SQS   ############################################
 ##########################################################################################
+#Queue access policy document
 data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
   statement {
     sid    = "Allow S3 to send events"
