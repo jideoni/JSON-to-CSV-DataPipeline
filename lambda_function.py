@@ -19,7 +19,6 @@ csv_object_name = os.environ['csv_object_name']
 
 response = ""
 s3 = boto3.client('s3')
-s3_client = boto3.client('s3')
 #sqs client
 sqs = boto3.client('sqs')
 
@@ -78,7 +77,7 @@ def lambda_handler(event, context):
         raise e
 
 def write_to_bucket(bucket_name, csv_body, csv_object_name_local):
-    s3_client.put_object(
+    s3.put_object(
         Body = csv_body, 
         Bucket= bucket_name,
         Key= csv_object_name_local,
