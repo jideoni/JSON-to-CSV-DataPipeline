@@ -64,6 +64,19 @@ def lambda_handler(event, context):
     
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
+        print("CONTENT TYPE: " + response['ContentType'])
+        body = json.loads(response['Body'].read().decode("utf-8"))
+        for c in body.keys():
+            buildCSV += str(c) + ","
+        buildCSV += "\n"
+        for d in body.values():
+            buildCSV += str(d) + ","
+        write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
+        
+        #return response['ContentType']
+
+        '''
+        response = s3.get_object(Bucket=bucket, Key=key)
         body = json.loads(response['Body'].read().decode("utf-8"))
         for v,k in body.items():
             buildCSV += str(v) + "," + str(k)
@@ -71,6 +84,7 @@ def lambda_handler(event, context):
         print(buildCSV)
         write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
         #return response['ContentType']
+        '''
     except Exception as e:
         print(e)
         print('Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.'.format(key, bucket))
