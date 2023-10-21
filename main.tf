@@ -126,13 +126,7 @@ data "aws_iam_policy_document" "assume_role" {
     }
 
     actions = ["sts:AssumeRole"]
-    
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
-    
+ 
   }
 }
 
