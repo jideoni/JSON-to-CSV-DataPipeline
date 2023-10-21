@@ -304,8 +304,9 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_lambda_function.json_to_csv_lambda.arn]
     }
   }
+  */
 }
-*/
+
 
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   queue_url = aws_sqs_queue.JSON_event_queue.id
