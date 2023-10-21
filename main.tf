@@ -81,11 +81,6 @@ data "aws_iam_policy_document" "allow_S3_to_publish" {
   }
 }
 
-resource "aws_s3_bucket_policy" "allow_access_from_lambda_fn" {
-  bucket = aws_s3_bucket.json-bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_lambda_fn_document.json
-}
-
 #create JSON bucket notification resource to send message to Queue
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.json-bucket.id
@@ -130,6 +125,12 @@ data "aws_iam_policy_document" "assume_role" {
       identifiers = ["lambda.amazonaws.com"]
     }
 
+    
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
+    }
     
 
     actions = ["sts:AssumeRole"]
