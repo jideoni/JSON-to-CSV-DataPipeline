@@ -11,81 +11,6 @@ resource "aws_s3_bucket" "csv-bucket" {
   bucket = var.csv_bucket_name
 }
 
-#JSON bucket bucket-policy
-data "aws_iam_policy_document" "lambda_s3_get_permissions" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:ListAllMyBuckets",
-    ]
-    resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
-  }
-}
-
-resource "aws_iam_policy" "lambda_s3_permissions_to_get_from_s3" {
-  name        = "lambda_s3_get_permissions"
-  path        = "/"
-  description = "IAM policy for get from s3"
-  policy      = data.aws_iam_policy_document.lambda_s3_get_permissions.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_s3_get" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_s3_permissions_to_get_from_s3.arn
-}
-
-#CSV bucket bucket-policy
-data "aws_iam_policy_document" "lambda_s3_put_permissions_document" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:ListAllMyBuckets",
-    ]
-    resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
-  }
-}
-
-resource "aws_iam_policy" "lambda_s3_put_permissions" {
-  name        = "lambda_s3_put_permissions"
-  path        = "/"
-  description = "IAM policy for put to s3"
-  policy      = data.aws_iam_policy_document.lambda_s3_put_permissions_document.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_s3" {
-  role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_s3_put_permissions.arn
-}
-
-data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:*",
-    ]
-
-    resources = [
-      aws_s3_bucket.json-bucket.arn,
-      "${aws_s3_bucket.json-bucket.arn}/*",
-    ]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
-  }
-}
 
 #SNS permissions for CSV bucket
 data "aws_iam_policy_document" "allow_S3_to_publish" {
@@ -146,7 +71,7 @@ resource "aws_cloudwatch_log_group" "json-csv-log-group" {
 }
 
 ##########################################################################################
-####################################   LAMBDA ############################################
+####################################   LAMBDA   ##########################################
 ##########################################################################################
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -155,6 +80,12 @@ data "aws_iam_policy_document" "assume_role" {
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
+    }
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
 
     actions = ["sts:AssumeRole"]
@@ -166,6 +97,61 @@ resource "aws_iam_role" "iam_for_lambda" {
   name               = "iam_for_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
+
+
+
+
+#JSON bucket bucket-policy
+data "aws_iam_policy_document" "lambda_s3_get_permissions" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:ListAllMyBuckets",
+    ]
+    resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_s3_permissions_to_get_from_s3" {
+  name        = "lambda_s3_get_permissions"
+  path        = "/"
+  description = "IAM policy for get from s3"
+  policy      = data.aws_iam_policy_document.lambda_s3_get_permissions.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_get" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_s3_permissions_to_get_from_s3.arn
+}
+
+#CSV bucket bucket-policy
+data "aws_iam_policy_document" "lambda_s3_put_permissions_document" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:ListAllMyBuckets",
+    ]
+    resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_s3_put_permissions" {
+  name        = "lambda_s3_put_permissions"
+  path        = "/"
+  description = "IAM policy for put to s3"
+  policy      = data.aws_iam_policy_document.lambda_s3_put_permissions_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3" {
+  role       = aws_iam_role.iam_for_lambda.name
+  policy_arn = aws_iam_policy.lambda_s3_put_permissions.arn
+}
+
+
+
+
 
 #SQS permissions for lambda
 data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
@@ -209,17 +195,6 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
     resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}:*"]
-  }
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
-    ]
-
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
   }
 }
 
@@ -326,6 +301,8 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_s3_bucket.json-bucket.arn]
     }
   }
+
+
   statement {
     sid    = "Allow Lambda to recieve events"
     effect = "Allow"
@@ -344,6 +321,8 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
   }
+
+  
 }
 
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
