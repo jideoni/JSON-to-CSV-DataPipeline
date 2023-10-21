@@ -284,6 +284,8 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_s3_bucket.json-bucket.arn]
     }
   }
+
+  /*
   statement {
     sid    = "Allow Lambda to recieve events"
     effect = "Allow"
@@ -303,6 +305,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     }
   }
 }
+*/
 
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   queue_url = aws_sqs_queue.JSON_event_queue.id
