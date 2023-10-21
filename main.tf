@@ -130,11 +130,7 @@ data "aws_iam_policy_document" "assume_role" {
       identifiers = ["lambda.amazonaws.com"]
     }
 
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.json_to_csv_lambda.arn]
-    }
+    
 
     actions = ["sts:AssumeRole"]
   }
@@ -160,7 +156,7 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_lambda_function.json_to_csv_lambda.arn]
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
   }
 }
@@ -211,7 +207,7 @@ data "archive_file" "lambda-function" {
 }
 
 #create lambda function
-resource "aws_lambda_function" "json_to_csv_lambda" {
+resource "aws_lambda_function" "csv_to_json_lambda" {
   filename      = "lambda_function_payload.zip"
   function_name = var.lambda_function_name
   role          = aws_iam_role.iam_for_lambda.arn
@@ -237,14 +233,14 @@ resource "aws_lambda_function" "json_to_csv_lambda" {
 #create event source mapping
 resource "aws_lambda_event_source_mapping" "from_sqs" {
   event_source_arn = aws_sqs_queue.JSON_event_queue.arn
-  function_name    = aws_lambda_function.json_to_csv_lambda.arn
+  function_name    = aws_lambda_function.csv_to_json_lambda.arn
 }
 
 #create lambda SQS invokation
 resource "aws_lambda_permission" "allow_sqs" {
   statement_id  = "AllowExecutionFromJSON-SQS-Queue"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.json_to_csv_lambda.arn
+  function_name = aws_lambda_function.csv_to_json_lambda.arn
   principal     = "sqs.amazonaws.com"
   source_arn    = aws_sqs_queue.JSON_event_queue.arn
 }
@@ -309,7 +305,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     condition {
       test     = "ArnLike"
       variable = "aws:SourceArn"
-      values   = [aws_lambda_function.json_to_csv_lambda.arn]
+      values   = [aws_lambda_function.csv_to_json_lambda.arn]
     }
   }
 }
