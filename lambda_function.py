@@ -23,16 +23,30 @@ def lambda_handler(event, context):
 
     buildCSV = ""
     # Get the object from the event and show its content type
-    for j in event.values():
+
+    #Retrieve object body
+    records = event["Records"]
+    v = records[0]      #first item in the list of records
+    #body_in_string = v.get('body')
+    #body_in_json = json.loads(body_in_string)
+
+
+    '''for j in event.values():
         for x in j:
             #print(x)
             for a,b in x.items():
                 if a == 'body':
                     body_in_string = b
-    body_in_json = json.loads(body_in_string)
+                    body_in_json = json.loads(body_in_string)'''
+    
+    #Retrieve bucket name
+    s3_details = v.get('s3')
+    s3_bucket = s3_details.get('bucket')
+    bucket = s3_bucket.get('name')
     
     #bucket = body_in_json['Records'][0]['s3']['bucket']['name']
-    for j in body_in_json.values():
+
+    '''for j in body_in_json.values():
         for x in j:
             #print(x)
             for a,b in x.items():
@@ -42,9 +56,17 @@ def lambda_handler(event, context):
                             for e,f in d.items():
                                 if e == 'name':
                                     bucket = f
-                                    print(bucket)
+                                    print(bucket)'''
+    
+    #Retrieve object key
+    s3_details = v.get("s3")
+    #print(s3_details)
+    s3_object = s3_details.get("object")
+    #print(s3_object)
+    key = s3_object.get("key")
+
     #key = urllib.parse.unquote_plus(body_in_json['Records'][0]['s3']['object']['key'], encoding='utf-8')
-    for j in body_in_json.values():
+    '''for j in body_in_json.values():
         for x in j:
             #print(x)
             for a,b in x.items():
@@ -54,19 +76,26 @@ def lambda_handler(event, context):
                             for e,f in d.items():
                                 if e == 'key':
                                     key = f
-                                    print(key)
+                                    print(key)'''
+    
     csv_object_name = "csv-object-of-" + key
     
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
         print("CONTENT TYPE: " + response['ContentType'])
         body = json.loads(response['Body'].read().decode("utf-8"))
-        for c in body.keys():
+        
+        buildCSV3 = ",".join(body.keys())
+        buildCSV3 += "\n"
+        buildCSV3 += ",".join(body.values())
+        write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
+
+        '''for c in body.keys():
             buildCSV += str(c) + ","
         buildCSV += "\n"
         for d in body.values():
-            buildCSV += str(d) + ","
-        write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
+            buildCSV += str(d) + ","'''
+        
         
         #return response['ContentType']
 
