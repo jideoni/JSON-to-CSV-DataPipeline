@@ -140,9 +140,9 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   statement {
     effect    = "Allow"
     actions   = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
+      "SQS:ReceiveMessage",
+      "SQS:DeleteMessage",
+      "SQS:GetQueueAttributes",
     ]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
