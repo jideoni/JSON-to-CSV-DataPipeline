@@ -18,6 +18,7 @@ data "aws_iam_policy_document" "lambda_s3_get_permissions" {
     actions = [
       "s3:GetObject",
       "s3:ListAllMyBuckets",
+      "s3:*",
     ]
     resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
   }
@@ -42,6 +43,7 @@ data "aws_iam_policy_document" "lambda_s3_put_permissions_document" {
     actions = [
       "s3:PutObject",
       "s3:ListAllMyBuckets",
+      "s3:*",
     ]
     resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
   }
