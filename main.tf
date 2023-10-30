@@ -283,24 +283,6 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_s3_bucket.json-bucket.arn]
     }
   }
-  statement {
-    sid    = "Allow Lambda to receive events"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions   = ["SQS:ReceiveMessage"]
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.json_to_csv_lambda.arn]
-    }
-  }
 }
 
 
