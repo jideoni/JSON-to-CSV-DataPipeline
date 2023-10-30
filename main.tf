@@ -146,6 +146,7 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
     ]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
+    ###condition block not neede in aws_iam_policy_document data
     #condition {
       #test     = "ArnEquals"
       #variable = "aws:SourceArn"
@@ -284,7 +285,6 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     }
   }
 }
-
 
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   queue_url = aws_sqs_queue.JSON_event_queue.id
