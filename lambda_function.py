@@ -26,7 +26,7 @@ def lambda_handler(event, context):
 
     #Retrieve object body
     records = event['Records']
-    v = records[0]      #first item in the list of records
+    #v = records[0]      #first item in the list of records
     #body_in_string = v.get('body')
     #body_in_json = json.loads(body_in_string)
 
@@ -40,7 +40,7 @@ def lambda_handler(event, context):
                     body_in_json = json.loads(body_in_string)'''
     
     #Retrieve bucket name
-    s3_details = v.get('s3')
+    s3_details = records.get('s3')
     s3_bucket = s3_details.get('bucket')
     bucket = s3_bucket.get('name')
     
@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                                     print(bucket)'''
     
     #Retrieve object key
-    s3_details = v.get('s3')
+    s3_details = records.get('s3')
     s3_object = s3_details.get('object')
     key = s3_object.get('key')
 
