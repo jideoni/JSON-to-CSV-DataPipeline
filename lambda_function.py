@@ -85,13 +85,11 @@ def lambda_handler(event, context):
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
         print("CONTENT TYPE: " + response['ContentType'])
-        #body = json.loads(response['Body'].read().decode("utf-8"))
         body = json.loads(response['Body'].read().decode("utf-8"))
-        print(body)
         
-        buildCSV3 = ",".join(body.keys())
-        buildCSV3 += "\n"
-        buildCSV3 += ",".join(body.values())
+        buildCSV = ",".join(body.keys())
+        buildCSV += "\n"
+        buildCSV += ",".join(body.values())
         write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
 
         '''for c in body.keys():
