@@ -146,11 +146,11 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
     ]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.json_to_csv_lambda.arn]
-    }
+    #condition {
+      #test     = "ArnEquals"
+      #variable = "aws:SourceArn"
+      #values   = [aws_lambda_function.json_to_csv_lambda.arn]
+    #}
   }
 }
 
