@@ -45,9 +45,10 @@ def lambda_handler(event, context):
         print("CONTENT TYPE: " + response['ContentType'])
         body = json.loads(response['Body'].read().decode("utf-8"))
         
-        buildCSV = ",".join(body.keys())
+        buildCSV = ",".join(str(body.keys()))
         buildCSV += "\n"
-        buildCSV += ",".join(body.values())
+        buildCSV += ",".join(str(body.values()))
+        
         write_to_bucket(csv_bucket_name, buildCSV, csv_object_name)
     except Exception as e:
         print(e)
