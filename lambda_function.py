@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     # Get the object from the event and show its content type
 
     #Retrieve object body
-    records = event["Records"]
+    records = event['Records'][0]
     v = records[0]      #first item in the list of records
     #body_in_string = v.get('body')
     #body_in_json = json.loads(body_in_string)
@@ -41,8 +41,8 @@ def lambda_handler(event, context):
     
     #Retrieve bucket name
     s3_details = v.get('s3')
-    s3_bucket = s3_details.get("bucket")
-    bucket = s3_bucket.get("name")
+    s3_bucket = s3_details.get('bucket')
+    bucket = s3_bucket.get('name')
     
     #bucket = body_in_json['Records'][0]['s3']['bucket']['name']
 
