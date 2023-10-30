@@ -26,6 +26,7 @@ def lambda_handler(event, context):
 
     #Retrieve object body
     records = event['Records']
+    print(event)
     #v = records[0]      #first item in the list of records
     #body_in_string = v.get('body')
     #body_in_json = json.loads(body_in_string)
