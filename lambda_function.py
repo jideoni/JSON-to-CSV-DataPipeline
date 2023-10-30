@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     # Get the object from the event and show its content type
 
     #Retrieve object body
-    records = event['Records'][0]
+    records = event['Records']
     v = records[0]      #first item in the list of records
     #body_in_string = v.get('body')
     #body_in_json = json.loads(body_in_string)
