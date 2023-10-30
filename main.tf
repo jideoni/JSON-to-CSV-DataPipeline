@@ -154,8 +154,8 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   }
 }
 
-resource "aws_iam_policy" "lambda_SQS_recieve" {
-  name        = "lambda_SQS_recieve_name"
+resource "aws_iam_policy" "lambda_SQS_receive" {
+  name        = "lambda_SQS_receive_name"
   path        = "/"
   description = "IAM policy for logging from a lambda"
   policy      = data.aws_iam_policy_document.allow_lambda_to_receiveSQSMessage.json
@@ -163,7 +163,7 @@ resource "aws_iam_policy" "lambda_SQS_recieve" {
 
 resource "aws_iam_role_policy_attachment" "lambda_SQS" {
   role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_SQS_recieve.arn
+  policy_arn = aws_iam_policy.lambda_SQS_receive.arn
 }
 
 #CloudWatch permissions for lambda
@@ -284,7 +284,7 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
     }
   }
   statement {
-    sid    = "Allow Lambda to recieve events"
+    sid    = "Allow Lambda to receive events"
     effect = "Allow"
 
     principals {
