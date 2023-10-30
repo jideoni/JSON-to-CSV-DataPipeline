@@ -308,3 +308,13 @@ resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
   queue_url = aws_sqs_queue.JSON_event_queue.id
   policy    = data.aws_iam_policy_document.sqs_allow_message_from_JSON_bucket.json
 }
+
+#SQS queue creation
+resource "aws_sqs_queue" "JSON_event_queue" {
+  name                      = var.JSON_event_queue_name
+  delay_seconds             = 0
+  max_message_size          = 256000
+  message_retention_seconds = 300
+  receive_wait_time_seconds = 2
+  sqs_managed_sse_enabled    = false
+} 
