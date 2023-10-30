@@ -18,7 +18,6 @@ data "aws_iam_policy_document" "lambda_s3_get_permissions" {
     actions = [
       "s3:GetObject",
       "s3:ListAllMyBuckets",
-      "s3:*",
     ]
     resources = ["${aws_s3_bucket.json-bucket.arn}/*"]
   }
@@ -43,7 +42,6 @@ data "aws_iam_policy_document" "lambda_s3_put_permissions_document" {
     actions = [
       "s3:PutObject",
       "s3:ListAllMyBuckets",
-      "s3:*",
     ]
     resources = ["${aws_s3_bucket.csv-bucket.arn}/*"]
   }
@@ -61,6 +59,32 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
   policy_arn = aws_iam_policy.lambda_s3_put_permissions.arn
 }
 
+data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListAllMyBuckets",
+    ]
+
+    resources = [
+      aws_s3_bucket.json-bucket.arn,
+      "${aws_s3_bucket.json-bucket.arn}/*",
+    ]
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+      values   = [aws_lambda_function.json_to_csv_lambda.arn]
+    }
+  }
+}
 
 #SNS permissions for CSV bucket
 data "aws_iam_policy_document" "allow_S3_to_publish" {
