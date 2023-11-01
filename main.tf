@@ -59,34 +59,6 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
   policy_arn = aws_iam_policy.lambda_s3_put_permissions.arn
 }
 
-data "aws_iam_policy_document" "allow_access_from_lambda_fn_document" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:*",
-    ]
-
-    resources = [
-      aws_s3_bucket.json-bucket.arn,
-      "${aws_s3_bucket.json-bucket.arn}/*",
-    ]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
-  }
-}
-
 #SNS permissions for CSV bucket
 data "aws_iam_policy_document" "allow_S3_to_publish" {
   statement {
@@ -106,11 +78,6 @@ data "aws_iam_policy_document" "allow_S3_to_publish" {
       values   = [aws_s3_bucket.csv-bucket.arn]
     }
   }
-}
-
-resource "aws_s3_bucket_policy" "allow_access_from_lambda_fn" {
-  bucket = aws_s3_bucket.json-bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_lambda_fn_document.json
 }
 
 #create JSON bucket notification resource to send message to Queue
@@ -146,7 +113,7 @@ resource "aws_cloudwatch_log_group" "json-csv-log-group" {
 }
 
 ##########################################################################################
-####################################   LAMBDA ############################################
+####################################   LAMBDA   ##########################################
 ##########################################################################################
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -158,6 +125,7 @@ data "aws_iam_policy_document" "assume_role" {
     }
 
     actions = ["sts:AssumeRole"]
+ 
   }
 }
 
@@ -172,22 +140,23 @@ data "aws_iam_policy_document" "allow_lambda_to_receiveSQSMessage" {
   statement {
     effect    = "Allow"
     actions   = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
+      "SQS:ReceiveMessage",
+      "SQS:DeleteMessage",
+      "SQS:GetQueueAttributes",
     ]
     resources = [aws_sqs_queue.JSON_event_queue.arn]
 
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
+    ###condition block not neede in aws_iam_policy_document data
+    #condition {
+      #test     = "ArnEquals"
+      #variable = "aws:SourceArn"
+      #values   = [aws_lambda_function.json_to_csv_lambda.arn]
+    #}
   }
 }
 
-resource "aws_iam_policy" "lambda_SQS_recieve" {
-  name        = "lambda_SQS_recieve_name"
+resource "aws_iam_policy" "lambda_SQS_receive" {
+  name        = "lambda_SQS_receive_name"
   path        = "/"
   description = "IAM policy for logging from a lambda"
   policy      = data.aws_iam_policy_document.allow_lambda_to_receiveSQSMessage.json
@@ -195,7 +164,7 @@ resource "aws_iam_policy" "lambda_SQS_recieve" {
 
 resource "aws_iam_role_policy_attachment" "lambda_SQS" {
   role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.lambda_SQS_recieve.arn
+  policy_arn = aws_iam_policy.lambda_SQS_receive.arn
 }
 
 #CloudWatch permissions for lambda
@@ -209,17 +178,6 @@ data "aws_iam_policy_document" "lambda_logging" {
       "logs:PutLogEvents",
     ]
     resources = ["${aws_cloudwatch_log_group.json-csv-log-group.arn}:*"]
-  }
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "sqs:ReceiveMessage",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes"
-    ]
-
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
   }
 }
 
@@ -243,7 +201,7 @@ data "archive_file" "lambda-function" {
 }
 
 #create lambda function
-resource "aws_lambda_function" "csv_to_json_lambda" {
+resource "aws_lambda_function" "json_to_csv_lambda" {
   filename      = "lambda_function_payload.zip"
   function_name = var.lambda_function_name
   role          = aws_iam_role.iam_for_lambda.arn
@@ -269,14 +227,14 @@ resource "aws_lambda_function" "csv_to_json_lambda" {
 #create event source mapping
 resource "aws_lambda_event_source_mapping" "from_sqs" {
   event_source_arn = aws_sqs_queue.JSON_event_queue.arn
-  function_name    = aws_lambda_function.csv_to_json_lambda.arn
+  function_name    = aws_lambda_function.json_to_csv_lambda.arn
 }
 
 #create lambda SQS invokation
 resource "aws_lambda_permission" "allow_sqs" {
   statement_id  = "AllowExecutionFromJSON-SQS-Queue"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.csv_to_json_lambda.arn
+  function_name = aws_lambda_function.json_to_csv_lambda.arn
   principal     = "sqs.amazonaws.com"
   source_arn    = aws_sqs_queue.JSON_event_queue.arn
 }
@@ -326,24 +284,6 @@ data "aws_iam_policy_document" "sqs_allow_message_from_JSON_bucket" {
       values   = [aws_s3_bucket.json-bucket.arn]
     }
   }
-  statement {
-    sid    = "Allow Lambda to recieve events"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions   = ["SQS:ReceiveMessage"]
-    resources = [aws_sqs_queue.JSON_event_queue.arn]
-
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
-      values   = [aws_lambda_function.csv_to_json_lambda.arn]
-    }
-  }
 }
 
 resource "aws_sqs_queue_policy" "policy_of_sqs_allow_message_from_JSON_bucket" {
@@ -359,4 +299,4 @@ resource "aws_sqs_queue" "JSON_event_queue" {
   message_retention_seconds = 300
   receive_wait_time_seconds = 2
   sqs_managed_sse_enabled    = false
-} 
+}
