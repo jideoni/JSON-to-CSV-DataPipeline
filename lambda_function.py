@@ -22,10 +22,14 @@ def lambda_handler(event, context):
     #print("Received event: " + json.dumps(event, indent=2))
     buildCSV = ""
     # Get the object from the event and show its content type
-    records = event['Records'][0]
+    #records = event['Records'][0]
+    records = event.get('Records')
+    records = records[0]
     body_in_string = records.get('body')
     body_in_json = json.loads(body_in_string)
-    s3_records = body_in_json['Records'][0]
+    #s3_records = body_in_json['Records'][0]
+    s3_records = body_in_json.get('Records')
+    s3_records = s3_records[0]
     s3_details = s3_records.get('s3')
     
     #Retrieve bucket name
